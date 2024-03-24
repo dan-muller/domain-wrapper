@@ -1,37 +1,37 @@
-import type { Parser } from '../parser';
+import type { Parser } from "../parser";
 
 export type ParseFn<TType> = (value: unknown) => Promise<TType> | TType;
 
 export function getParseFn<TType>(procedureParser: Parser): ParseFn<TType> {
   const parser = procedureParser as any;
 
-  if (typeof parser === 'function') {
+  if (typeof parser === "function") {
     // ParserCustomValidatorEsque
     return parser;
   }
 
-  if (typeof parser.parseAsync === 'function') {
+  if (typeof parser.parseAsync === "function") {
     // ParserZodEsque
     return parser.parseAsync.bind(parser);
   }
 
-  if (typeof parser.parse === 'function') {
+  if (typeof parser.parse === "function") {
     // ParserZodEsque
     // ParserValibotEsque (<= v0.12.X)
     return parser.parse.bind(parser);
   }
 
-  if (typeof parser.validateSync === 'function') {
+  if (typeof parser.validateSync === "function") {
     // ParserYupEsque
     return parser.validateSync.bind(parser);
   }
 
-  if (typeof parser.create === 'function') {
+  if (typeof parser.create === "function") {
     // ParserSuperstructEsque
     return parser.create.bind(parser);
   }
 
-  if (typeof parser.assert === 'function') {
+  if (typeof parser.assert === "function") {
     // ParserScaleEsque
     return (value) => {
       parser.assert(value);
@@ -39,16 +39,14 @@ export function getParseFn<TType>(procedureParser: Parser): ParseFn<TType> {
     };
   }
 
-  throw new Error('Could not find a validator fn');
+  throw new Error("Could not find a validator fn");
 }
 
 /**
  * @deprecated only for backwards compat
  * @internal
  */
-export function getParseFnOrPassThrough<TType>(
-  procedureParser: Parser | undefined,
-): ParseFn<TType> {
+export function getParseFnOrPassThrough<TType>(procedureParser: Parser | undefined): ParseFn<TType> {
   if (!procedureParser) {
     return (v) => v as TType;
   }

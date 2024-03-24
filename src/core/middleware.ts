@@ -46,6 +46,11 @@ export type MiddlewareResult<TParams extends ProcedureParams> =
  */
 export interface MiddlewareBuilder<TRoot extends ProcedureParams, TNewParams extends ProcedureParams> {
   /**
+   * List of middlewares within this middleware builder
+   */
+  _middlewares: MiddlewareFunction<TRoot, TNewParams>[];
+
+  /**
    * Create a new builder based on the current middleware builder
    */
   unstable_pipe<$Params extends ProcedureParams>(
@@ -60,11 +65,6 @@ export interface MiddlewareBuilder<TRoot extends ProcedureParams, TNewParams ext
       ? MiddlewareBuilder<OParams, $Params> | MiddlewareFunction<OParams, $Params>
       : never
   ): CreateMiddlewareReturnInput<TRoot, TNewParams, Overwrite<TNewParams, $Params>>;
-
-  /**
-   * List of middlewares within this middleware builder
-   */
-  _middlewares: MiddlewareFunction<TRoot, TNewParams>[];
 }
 
 /**

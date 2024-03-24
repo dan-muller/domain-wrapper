@@ -1,14 +1,14 @@
 import type { AnyProcedure, Procedure, ProcedureParams } from "../procedure";
 import type { AnyRootConfig } from "./config";
 import type { DefaultValue, Overwrite, OverwriteKnown, ResolveOptions, UnsetMarker } from "./utils";
+import { middlewareMarker } from "./utils";
 import type { MaybePromise, Simplify, Unwrap } from "../util-types";
 import type { MiddlewareBuilder, MiddlewareFunction, MiddlewareResult } from "../middleware";
-import type { inferParser, Parser } from "../parser";
 import { createInputMiddleware, createOutputMiddleware } from "../middleware";
+import type { inferParser, Parser } from "../parser";
 import { getParseFn } from "./getParseFn";
 import { getTRPCErrorFromUnknown, TRPCError } from "../error";
 import { mergeWithoutOverrides } from "./mergeWithoutOverrides";
-import { middlewareMarker } from "./utils";
 
 type CreateProcedureReturnInput<TPrev extends ProcedureParams, TNext extends ProcedureParams> = ProcedureBuilder<{
   _config: TPrev["_config"];
@@ -51,6 +51,11 @@ export type ProcedureBuilderDef<_TParams extends ProcedureParams> = {
 export type AnyProcedureBuilderDef = ProcedureBuilderDef<any>;
 
 export interface ProcedureBuilder<TParams extends ProcedureParams> {
+  /**
+   * @internal
+   */
+  _def: ProcedureBuilderDef<TParams>;
+
   context<TNewContext extends object | ContextCallback>(): Omit<
     ProcedureBuilder<{
       _config: TParams["_config"];
@@ -62,6 +67,7 @@ export interface ProcedureBuilder<TParams extends ProcedureParams> {
     }>,
     "context"
   >;
+
   /**
    * Add an input parser to the procedure.
    */
@@ -86,6 +92,7 @@ export interface ProcedureBuilder<TParams extends ProcedureParams> {
     _output_in: TParams["_output_in"];
     _output_out: TParams["_output_out"];
   }>;
+
   /**
    * Add an output parser to the procedure.
    */
@@ -99,22 +106,20 @@ export interface ProcedureBuilder<TParams extends ProcedureParams> {
     _output_in: inferParser<$Parser>["in"];
     _output_out: inferParser<$Parser>["out"];
   }>;
+
   /**
    * Add a middleware to the procedure.
    */
   use<$Params extends ProcedureParams>(
     fn: MiddlewareBuilder<TParams, $Params> | MiddlewareFunction<TParams, $Params>
   ): CreateProcedureReturnInput<TParams, $Params>;
+
   /**
    * Resolve procedure
    */
   resolve<$Output>(
     resolver: (opts: ResolveOptions<TParams>) => MaybePromise<DefaultValue<TParams["_output_in"], $Output>>
   ): BuildProcedure<TParams, $Output>;
-  /**
-   * @internal
-   */
-  _def: ProcedureBuilderDef<TParams>;
 }
 
 type AnyProcedureBuilder = ProcedureBuilder<any>;
@@ -281,28 +286,27 @@ function createProcedureCaller(_def: AnyProcedureBuilderDef): AnyProcedure {
     }
     return result.data;
   };
+
+  const withPlugin: AnyProcedure["with"] = (plugin) => (opts: ProcedureCallOptions) =>
+    plugin({
+      ctx: opts.ctx,
+      input: opts.input,
+      next(_nextOpts?: any) {
+        const nextOpts = _nextOpts as
+          | {
+              ctx?: Record<string, unknown>;
+              input?: unknown;
+            }
+          | undefined;
+
+        return procedure({
+          ctx: nextOpts && "ctx" in nextOpts ? { ...nextOpts.ctx } : opts.ctx,
+          input: nextOpts && "input" in nextOpts ? nextOpts.input : opts.input,
+        });
+      },
+    });
+
   procedure._def = _def;
-  procedure.with = ((plugin) => {
-    return (opts: ProcedureCallOptions) =>
-      plugin({
-        ctx: opts.ctx,
-        input: opts.input,
-        async next(_nextOpts?: any) {
-          const nextOpts = _nextOpts as
-            | {
-                ctx?: Record<string, unknown>;
-                input?: unknown;
-              }
-            | undefined;
-
-          const output = await procedure({
-            ctx: nextOpts && "ctx" in nextOpts ? { ...nextOpts.ctx } : opts.ctx,
-            input: nextOpts && "input" in nextOpts ? nextOpts.input : opts.input,
-          });
-          return output as any;
-        },
-      });
-  }) as AnyProcedure["with"];
-
+  procedure.with = withPlugin;
   return procedure as AnyProcedure;
 }
