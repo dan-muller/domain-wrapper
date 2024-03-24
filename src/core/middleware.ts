@@ -124,6 +124,16 @@ export type MiddlewareFunction<TParams extends ProcedureParams, TParamsAfter ext
   _type?: string | undefined;
 };
 
+export type PluginFunction<TParams extends ProcedureParams, $Output> = (opts: {
+  ctx: Simplify<Overwrite<TParams["_config"]["$types"]["ctx"], TParams["_ctx_out"]>>;
+  input: TParams["_input_in"];
+  next: {
+    (): Promise<TParams["_output_out"]>;
+    <$Context>(opts: { ctx: $Context }): Promise<TParams["_output_out"]>;
+    (opts: { input: unknown }): Promise<TParams["_output_out"]>;
+  };
+}) => Promise<$Output>;
+
 /**
  * @internal
  */
