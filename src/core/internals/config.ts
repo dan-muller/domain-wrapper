@@ -32,12 +32,7 @@ export interface RuntimeConfig<TTypes extends RootConfigTypes> {
    * Use custom error formatting
    * @link https://trpc.io/docs/error-formatting
    */
-  errorFormatter: ErrorFormatter<
-    TTypes["ctx"],
-    TRPCErrorShape<number> & {
-      [key: string]: any;
-    }
-  >;
+  errorFormatter: ErrorFormatter<TTypes["ctx"], TRPCErrorShape<number> & { [key: string]: any }>;
   /**
    * Is this development?
    * Will be used to decide if the API should return stack traces

@@ -1,5 +1,5 @@
 import type { AnyRootConfig } from "./internals/config";
-import type { PluginFunction } from "./middleware";
+import type { MiddlewareFunction, PluginFunction } from "./middleware";
 import type { ProcedureBuilderDef, ProcedureCallOptions } from "./internals/procedureBuilder";
 import type { UnsetMarker } from "./internals/utils";
 

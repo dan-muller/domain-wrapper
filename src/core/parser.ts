@@ -18,7 +18,9 @@ export type ParserSuperstructEsque<TInput> = {
   create: (input: unknown) => TInput;
 };
 
-export type ParserCustomValidatorEsque<TInput> = (input: unknown) => Promise<TInput> | TInput;
+export type ParserCustomValidatorEsque<TInput> = (
+  input: unknown,
+) => Promise<TInput> | TInput;
 
 export type ParserYupEsque<TInput> = {
   validateSync: (input: unknown) => TInput;
@@ -48,8 +50,8 @@ export type inferParser<TParser extends Parser> =
         out: $TOut;
       }
     : TParser extends ParserWithoutInput<infer $InOut>
-      ? {
-          in: $InOut;
-          out: $InOut;
-        }
-      : never;
+    ? {
+        in: $InOut;
+        out: $InOut;
+      }
+    : never;
