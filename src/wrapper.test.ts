@@ -22,32 +22,32 @@ describe("wrapper", () => {
     .context<Context>()
     .input(z.number())
     .output(z.string())
-    .resolve(({ rawInput, ctx: { add, subtract } }) => {
-      return (rawInput + (add ?? 0) - (subtract ?? 0)).toString();
+    .resolve(({ input, ctx: { add, subtract } }) => {
+      return (input + (add ?? 0) - (subtract ?? 0)).toString();
     });
 
   it("should return input", async () => {
-    const result = await widget({ ctx: {}, rawInput: 1, path: "" });
+    const result = await widget({ ctx: {}, input: 1, path: "" });
     expect(result).toBe("1");
   });
 
   it("should return input with add", async () => {
-    const result = await widget({ ctx: { add: 2 }, rawInput: 1, path: "" });
+    const result = await widget({ ctx: { add: 2 }, input: 1, path: "" });
     expect(result).toBe("3");
   });
 
   it("should return input with subtract", async () => {
-    const result = await widget({ ctx: { subtract: 2 }, rawInput: 1, path: "" });
+    const result = await widget({ ctx: { subtract: 2 }, input: 1, path: "" });
     expect(result).toBe("-1");
   });
 
   it("should return input with add and subtract", async () => {
-    const result = await widget({ ctx: { add: 2, subtract: 3 }, rawInput: 1, path: "" });
+    const result = await widget({ ctx: { add: 2, subtract: 3 }, input: 1, path: "" });
     expect(result).toBe("0");
   });
 
   it("should error when input fails to parse", async () => {
-    await expect(widget({ ctx: {}, rawInput: "1", path: "" })).rejects.toThrowError();
+    await expect(widget({ ctx: {}, input: "1", path: "" })).rejects.toThrowError();
   });
 
   describe("with plugin", () => {
@@ -65,7 +65,7 @@ describe("wrapper", () => {
           add: 200,
           subtract: 300,
         },
-        rawInput: input,
+        input: input,
         path: "",
       });
       expect(result).toMatchObject({
@@ -76,7 +76,7 @@ describe("wrapper", () => {
     });
 
     it("should error when input fails to parse", async () => {
-      await expect(gadget({ ctx: {}, rawInput: "1", path: "" })).rejects.toThrowError();
+      await expect(gadget({ ctx: {}, input: "1", path: "" })).rejects.toThrowError();
     });
   });
 });

@@ -23,7 +23,7 @@ interface MiddlewareResultBase {
 interface MiddlewareOKResult<_TParams extends ProcedureParams> extends MiddlewareResultBase {
   ok: true;
   data: unknown;
-  // this could be extended with `input`/`rawInput` later
+  // this could be extended with `input`/`input` later
 }
 
 /**
@@ -106,7 +106,7 @@ export type MiddlewareFunction<TParams extends ProcedureParams, TParamsAfter ext
   (opts: {
     ctx: Simplify<Overwrite<TParams["_config"]["$types"]["ctx"], TParams["_ctx_out"]>>;
     path: string;
-    rawInput: TParams["_input_in"];
+    input: TParams["_input_in"];
     next: {
       (): Promise<MiddlewareResult<TParams>>;
       <$Context>(opts: { ctx: $Context }): Promise<
@@ -119,7 +119,7 @@ export type MiddlewareFunction<TParams extends ProcedureParams, TParamsAfter ext
           _output_out: TParams["_output_out"];
         }>
       >;
-      (opts: { rawInput: unknown }): Promise<MiddlewareResult<TParams>>;
+      (opts: { input: unknown }): Promise<MiddlewareResult<TParams>>;
     };
   }): Promise<MiddlewareResult<TParamsAfter>>;
   _type?: string | undefined;
@@ -155,7 +155,7 @@ export function createMiddlewareFactory<TConfig extends AnyRootConfig, TInputIn 
 export const experimental_standaloneMiddleware = <
   TCtx extends {
     ctx?: object;
-    rawInput?: unknown;
+    input?: unknown;
   },
 >() => ({
   create: createMiddlewareFactory<
@@ -163,7 +163,7 @@ export const experimental_standaloneMiddleware = <
       ctx: TCtx extends { ctx: infer T extends object } ? T : object;
       errorShape: object;
     }>,
-    TCtx extends { rawInput: infer T } ? T : unknown
+    TCtx extends { input: infer T } ? T : unknown
   >(),
 });
 
@@ -176,10 +176,10 @@ function isPlainObject(obj: unknown) {
  * Please note, `trpc-openapi` uses this function.
  */
 export function createInputMiddleware<TInput>(parse: ParseFn<TInput>) {
-  const inputMiddleware: ProcedureBuilderMiddleware = async ({ next, rawInput }) => {
+  const inputMiddleware: ProcedureBuilderMiddleware = async ({ next, input }) => {
     let parsedInput: ReturnType<typeof parse>;
     try {
-      parsedInput = await parse(rawInput);
+      parsedInput = await parse(input);
     } catch (cause) {
       throw new TRPCError({
         code: "BAD_REQUEST",
@@ -189,15 +189,15 @@ export function createInputMiddleware<TInput>(parse: ParseFn<TInput>) {
 
     // Multiple input parsers
     const combinedInput =
-      isPlainObject(rawInput) && isPlainObject(parsedInput)
+      isPlainObject(input) && isPlainObject(parsedInput)
         ? {
-            ...rawInput,
+            ...input,
             ...parsedInput,
           }
         : parsedInput;
 
     // TODO fix this typing?
-    return next({ rawInput: combinedInput } as any);
+    return next({ input: combinedInput } as any);
   };
   inputMiddleware._type = "input";
   return inputMiddleware;
