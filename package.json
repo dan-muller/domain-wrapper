@@ -1,0 +1,38 @@
+{
+  "name": "domain-wrapper",
+  "version": "0.0.1",
+  "description": "A lightweight wrapper framework for encapsulating functions within a domain",
+  "scripts": {
+    "precommit": "lint-staged",
+    "prepush": "pnpm test",
+    "preinstall": "npx only-allow pnpm",
+    "prepare": "husky",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "domain",
+    "encapsulation",
+    "function",
+    "functional",
+    "isolation"
+  ],
+  "author": "dan-muller",
+  "license": "ISC",
+  "dependencies": {
+    "node": "^20",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@typescript-eslint/eslint-plugin": "^7.3.1",
+    "@typescript-eslint/parser": "^7.3.1",
+    "eslint": "^8.57.0",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.3",
+    "vite": "^5.2.4",
+    "vite-tsconfig-paths": "^4.3.2",
+    "vitest": "^1.4.0"
+  }
+}
