@@ -220,7 +220,6 @@ function createResolver(_def: AnyProcedureBuilderDef, resolver: (opts: ResolveOp
 export interface ProcedureCallOptions {
   ctx: unknown;
   input: unknown;
-  path: string;
 }
 
 function createProcedureCaller(_def: AnyProcedureBuilderDef): AnyProcedure {
@@ -241,7 +240,6 @@ function createProcedureCaller(_def: AnyProcedureBuilderDef): AnyProcedure {
         const middleware = _def.middlewares[callOpts.index]!;
         const result = await middleware({
           ctx: callOpts.ctx,
-          path: opts.path,
           input: callOpts.input ?? opts.input,
           next(_nextOpts?: any) {
             const nextOpts = _nextOpts as
@@ -288,7 +286,6 @@ function createProcedureCaller(_def: AnyProcedureBuilderDef): AnyProcedure {
     return (opts: ProcedureCallOptions) =>
       plugin({
         ctx: opts.ctx,
-        path: opts.path,
         input: opts.input,
         next(_nextOpts?: any) {
           console.log(opts, _nextOpts);
@@ -300,7 +297,6 @@ function createProcedureCaller(_def: AnyProcedureBuilderDef): AnyProcedure {
             | undefined;
 
           return procedure({
-            path: opts.path,
             ctx: nextOpts && "ctx" in nextOpts ? { ...nextOpts.ctx } : opts.ctx,
             input: nextOpts && "input" in nextOpts ? nextOpts.input : opts.input,
           });

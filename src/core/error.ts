@@ -132,7 +132,7 @@ export class TRPCError extends Error {
 export type DefaultErrorData = {
   code: TRPC_ERROR_CODE_KEY;
   httpStatus: number;
-  path?: string;
+  name?: string;
   stack?: string;
 };
 
@@ -145,7 +145,7 @@ export type ErrorFormatter<TContext, TShape extends TRPCErrorShape<number>> = ({
   error,
 }: {
   error: TRPCError;
-  path: string | undefined;
+  name: string | undefined;
   input: unknown;
   ctx: TContext | undefined;
   shape: DefaultErrorShape;

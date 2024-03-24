@@ -27,27 +27,27 @@ describe("wrapper", () => {
     });
 
   it("should return input", async () => {
-    const result = await widget({ ctx: {}, input: 1, path: "" });
+    const result = await widget({ ctx: {}, input: 1 });
     expect(result).toBe("1");
   });
 
   it("should return input with add", async () => {
-    const result = await widget({ ctx: { add: 2 }, input: 1, path: "" });
+    const result = await widget({ ctx: { add: 2 }, input: 1 });
     expect(result).toBe("3");
   });
 
   it("should return input with subtract", async () => {
-    const result = await widget({ ctx: { subtract: 2 }, input: 1, path: "" });
+    const result = await widget({ ctx: { subtract: 2 }, input: 1 });
     expect(result).toBe("-1");
   });
 
   it("should return input with add and subtract", async () => {
-    const result = await widget({ ctx: { add: 2, subtract: 3 }, input: 1, path: "" });
+    const result = await widget({ ctx: { add: 2, subtract: 3 }, input: 1 });
     expect(result).toBe("0");
   });
 
   it("should error when input fails to parse", async () => {
-    await expect(widget({ ctx: {}, input: "1", path: "" })).rejects.toThrowError();
+    await expect(widget({ ctx: {}, input: "1" })).rejects.toThrowError();
   });
 
   describe("with plugin", () => {
@@ -66,7 +66,6 @@ describe("wrapper", () => {
           subtract: 300,
         },
         input: input,
-        path: "",
       });
       expect(result).toMatchObject({
         gizmo: "110",
@@ -76,7 +75,7 @@ describe("wrapper", () => {
     });
 
     it("should error when input fails to parse", async () => {
-      await expect(gadget({ ctx: {}, input: "1", path: "" })).rejects.toThrowError();
+      await expect(gadget({ ctx: {}, input: "1" })).rejects.toThrowError();
     });
   });
 });

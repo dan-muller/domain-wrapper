@@ -105,7 +105,6 @@ type deriveParamsFromConfig<TConfig extends AnyRootConfig, TInputIn = unknown> =
 export type MiddlewareFunction<TParams extends ProcedureParams, TParamsAfter extends ProcedureParams> = {
   (opts: {
     ctx: Simplify<Overwrite<TParams["_config"]["$types"]["ctx"], TParams["_ctx_out"]>>;
-    path: string;
     input: TParams["_input_in"];
     next: {
       (): Promise<MiddlewareResult<TParams>>;
