@@ -23,7 +23,7 @@ interface MiddlewareResultBase {
 interface MiddlewareOKResult<_TParams extends ProcedureParams> extends MiddlewareResultBase {
   ok: true;
   data: unknown;
-  // this could be extended with `input`/`rawInput` later
+  // this could be extended with `input`/`input` later
 }
 
 /**
@@ -107,7 +107,6 @@ export type MiddlewareFunction<TParams extends ProcedureParams, TParamsAfter ext
     ctx: Simplify<Overwrite<TParams["_config"]["$types"]["ctx"], TParams["_ctx_out"]>>;
     path: string;
     input: TParams["_input_in"];
-    rawInput: unknown;
     next: {
       (): Promise<MiddlewareResult<TParams>>;
       <$Context>(opts: { ctx: $Context }): Promise<
@@ -120,7 +119,7 @@ export type MiddlewareFunction<TParams extends ProcedureParams, TParamsAfter ext
           _output_out: TParams["_output_out"];
         }>
       >;
-      (opts: { rawInput: unknown }): Promise<MiddlewareResult<TParams>>;
+      (opts: { input: unknown }): Promise<MiddlewareResult<TParams>>;
     };
   }): Promise<MiddlewareResult<TParamsAfter>>;
   _type?: string | undefined;
@@ -177,10 +176,10 @@ function isPlainObject(obj: unknown) {
  * Please note, `trpc-openapi` uses this function.
  */
 export function createInputMiddleware<TInput>(parse: ParseFn<TInput>) {
-  const inputMiddleware: ProcedureBuilderMiddleware = async ({ next, rawInput, input }) => {
+  const inputMiddleware: ProcedureBuilderMiddleware = async ({ next, input }) => {
     let parsedInput: ReturnType<typeof parse>;
     try {
-      parsedInput = await parse(rawInput);
+      parsedInput = await parse(input);
     } catch (cause) {
       throw new TRPCError({
         code: "BAD_REQUEST",
