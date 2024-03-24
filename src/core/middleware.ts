@@ -106,8 +106,7 @@ export type MiddlewareFunction<TParams extends ProcedureParams, TParamsAfter ext
   (opts: {
     ctx: Simplify<Overwrite<TParams["_config"]["$types"]["ctx"], TParams["_ctx_out"]>>;
     path: string;
-    input: TParams["_input_in"];
-    rawInput: unknown;
+    rawInput: TParams["_input_in"];
     next: {
       (): Promise<MiddlewareResult<TParams>>;
       <$Context>(opts: { ctx: $Context }): Promise<
@@ -156,7 +155,7 @@ export function createMiddlewareFactory<TConfig extends AnyRootConfig, TInputIn 
 export const experimental_standaloneMiddleware = <
   TCtx extends {
     ctx?: object;
-    input?: unknown;
+    rawInput?: unknown;
   },
 >() => ({
   create: createMiddlewareFactory<
@@ -164,7 +163,7 @@ export const experimental_standaloneMiddleware = <
       ctx: TCtx extends { ctx: infer T extends object } ? T : object;
       errorShape: object;
     }>,
-    TCtx extends { input: infer T } ? T : unknown
+    TCtx extends { rawInput: infer T } ? T : unknown
   >(),
 });
 
@@ -177,7 +176,7 @@ function isPlainObject(obj: unknown) {
  * Please note, `trpc-openapi` uses this function.
  */
 export function createInputMiddleware<TInput>(parse: ParseFn<TInput>) {
-  const inputMiddleware: ProcedureBuilderMiddleware = async ({ next, rawInput, input }) => {
+  const inputMiddleware: ProcedureBuilderMiddleware = async ({ next, rawInput }) => {
     let parsedInput: ReturnType<typeof parse>;
     try {
       parsedInput = await parse(rawInput);
@@ -190,15 +189,15 @@ export function createInputMiddleware<TInput>(parse: ParseFn<TInput>) {
 
     // Multiple input parsers
     const combinedInput =
-      isPlainObject(input) && isPlainObject(parsedInput)
+      isPlainObject(rawInput) && isPlainObject(parsedInput)
         ? {
-            ...input,
+            ...rawInput,
             ...parsedInput,
           }
         : parsedInput;
 
     // TODO fix this typing?
-    return next({ input: combinedInput } as any);
+    return next({ rawInput: combinedInput } as any);
   };
   inputMiddleware._type = "input";
   return inputMiddleware;

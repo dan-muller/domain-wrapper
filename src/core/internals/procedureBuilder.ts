@@ -220,7 +220,6 @@ function createResolver(_def: AnyProcedureBuilderDef, resolver: (opts: ResolveOp
 export interface ProcedureCallOptions {
   ctx: unknown;
   rawInput: unknown;
-  input?: unknown;
   path: string;
 }
 
@@ -231,7 +230,6 @@ function createProcedureCaller(_def: AnyProcedureBuilderDef): AnyProcedure {
       callOpts: {
         ctx: any;
         index: number;
-        input?: unknown;
         rawInput?: unknown;
       } = {
         index: 0,
@@ -245,12 +243,10 @@ function createProcedureCaller(_def: AnyProcedureBuilderDef): AnyProcedure {
           ctx: callOpts.ctx,
           path: opts.path,
           rawInput: callOpts.rawInput ?? opts.rawInput,
-          input: callOpts.input,
           next(_nextOpts?: any) {
             const nextOpts = _nextOpts as
               | {
                   ctx?: Record<string, unknown>;
-                  input?: unknown;
                   rawInput?: unknown;
                 }
               | undefined;
@@ -258,7 +254,6 @@ function createProcedureCaller(_def: AnyProcedureBuilderDef): AnyProcedure {
             return callRecursive({
               index: callOpts.index + 1,
               ctx: nextOpts && "ctx" in nextOpts ? { ...callOpts.ctx, ...nextOpts.ctx } : callOpts.ctx,
-              input: nextOpts && "input" in nextOpts ? nextOpts.input : callOpts.input,
               rawInput: nextOpts && "rawInput" in nextOpts ? nextOpts.rawInput : callOpts.rawInput,
             });
           },
@@ -295,12 +290,11 @@ function createProcedureCaller(_def: AnyProcedureBuilderDef): AnyProcedure {
         ctx: opts.ctx,
         path: opts.path,
         rawInput: opts.rawInput,
-        input: opts.input,
         next(_nextOpts?: any) {
+          console.log(opts, _nextOpts);
           const nextOpts = _nextOpts as
             | {
                 ctx?: Record<string, unknown>;
-                input?: unknown;
                 rawInput?: unknown;
               }
             | undefined;
@@ -308,7 +302,6 @@ function createProcedureCaller(_def: AnyProcedureBuilderDef): AnyProcedure {
           return procedure({
             path: opts.path,
             ctx: nextOpts && "ctx" in nextOpts ? { ...nextOpts.ctx } : opts.ctx,
-            input: nextOpts && "input" in nextOpts ? nextOpts.input : opts.input,
             rawInput: nextOpts && "rawInput" in nextOpts ? nextOpts.rawInput : opts.rawInput,
           });
         },

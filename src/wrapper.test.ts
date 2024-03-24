@@ -22,8 +22,8 @@ describe("wrapper", () => {
     .context<Context>()
     .input(z.number())
     .output(z.string())
-    .resolve(({ input, ctx: { add, subtract } }) => {
-      return (input + (add ?? 0) - (subtract ?? 0)).toString();
+    .resolve(({ rawInput, ctx: { add, subtract } }) => {
+      return (rawInput + (add ?? 0) - (subtract ?? 0)).toString();
     });
 
   it("should return input", async () => {
