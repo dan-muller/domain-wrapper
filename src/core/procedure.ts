@@ -1,4 +1,5 @@
 import type { AnyRootConfig } from "./internals/config";
+import type { MiddlewareFunction } from "./middleware";
 import type { ProcedureBuilderDef, ProcedureCallOptions } from "./internals/procedureBuilder";
 import type { UnsetMarker } from "./internals/utils";
 
@@ -66,10 +67,18 @@ export type ProcedureArgs<TParams extends ProcedureParams> = TParams["_input_in"
 export interface Procedure<TParams extends ProcedureParams> {
   _def: ProcedureBuilderDef<TParams> & TParams;
   _procedure: true;
+
   /**
    * @internal
    */
-  (opts: ProcedureCallOptions): Promise<unknown>;
+  (opts: ProcedureCallOptions): Promise<TParams["_output_out"]>;
+
+  /**
+   * Add a plug-in to the procedure.
+   */
+  with<$Params extends ProcedureParams, $Output>(
+    fn: (...opts: Parameters<MiddlewareFunction<TParams, $Params>>) => $Output
+  ): (opts: ProcedureCallOptions) => $Output;
 }
 
 export type AnyProcedure = Procedure<any>;

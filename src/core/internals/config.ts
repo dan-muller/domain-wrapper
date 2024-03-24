@@ -25,6 +25,10 @@ export const isServerDefault: boolean =
  */
 export interface RuntimeConfig<TTypes extends RootConfigTypes> {
   /**
+   * The name of the procedure
+   */
+  name: string;
+  /**
    * Use custom error formatting
    * @link https://trpc.io/docs/error-formatting
    */

@@ -1,14 +1,14 @@
-import type { MiddlewareBuilder, MiddlewareFunction, MiddlewareResult } from "../middleware";
-import { createInputMiddleware, createOutputMiddleware } from "../middleware";
-import type { inferParser, Parser } from "../parser";
-import { AnyProcedure, Procedure, ProcedureParams } from "../procedure";
+import type { AnyProcedure, Procedure, ProcedureParams } from "../procedure";
 import type { AnyRootConfig } from "./config";
-import { getParseFn } from "./getParseFn";
-import { mergeWithoutOverrides } from "./mergeWithoutOverrides";
 import type { DefaultValue, Overwrite, OverwriteKnown, ResolveOptions, UnsetMarker } from "./utils";
-import { middlewareMarker } from "./utils";
-import { MaybePromise, Simplify } from "../util-types";
+import type { MaybePromise, Simplify, Unwrap } from "../util-types";
+import type { MiddlewareBuilder, MiddlewareFunction, MiddlewareResult } from "../middleware";
+import type { inferParser, Parser } from "../parser";
+import { createInputMiddleware, createOutputMiddleware } from "../middleware";
+import { getParseFn } from "./getParseFn";
 import { getTRPCErrorFromUnknown, TRPCError } from "../error";
+import { mergeWithoutOverrides } from "./mergeWithoutOverrides";
+import { middlewareMarker } from "./utils";
 
 type CreateProcedureReturnInput<TPrev extends ProcedureParams, TNext extends ProcedureParams> = ProcedureBuilder<{
   _config: TPrev["_config"];
@@ -51,6 +51,17 @@ export type ProcedureBuilderDef<_TParams extends ProcedureParams> = {
 export type AnyProcedureBuilderDef = ProcedureBuilderDef<any>;
 
 export interface ProcedureBuilder<TParams extends ProcedureParams> {
+  context<TNewContext extends object | ContextCallback>(): Omit<
+    ProcedureBuilder<{
+      _config: TParams["_config"];
+      _ctx_out: TNewContext extends ContextCallback ? Unwrap<TNewContext> : TNewContext;
+      _input_in: TParams["_input_in"];
+      _input_out: TParams["_input_out"];
+      _output_in: TParams["_output_in"];
+      _output_out: TParams["_output_out"];
+    }>,
+    "context"
+  >;
   /**
    * Add an input parser to the procedure.
    */
@@ -112,6 +123,8 @@ export type ProcedureBuilderMiddleware = MiddlewareFunction<any, any>;
 
 export type ProcedureBuilderResolver = (opts: ResolveOptions<any>) => Promise<unknown>;
 
+type ContextCallback = (...args: any[]) => object | Promise<object>;
+
 function createNewBuilder(def1: AnyProcedureBuilderDef, def2: Partial<AnyProcedureBuilderDef>) {
   const { middlewares = [], inputs, ...rest } = def2;
 
@@ -141,6 +154,18 @@ export function createBuilder<TConfig extends AnyRootConfig>(
 
   return {
     _def,
+    context<TNewContext extends object | ContextCallback>() {
+      type $Context = TNewContext extends ContextCallback ? Unwrap<TNewContext> : TNewContext;
+
+      type NextConfig = Overwrite<
+        TConfig,
+        {
+          ctx: $Context;
+        }
+      >;
+
+      return createBuilder<NextConfig>() as any;
+    },
     input(input) {
       const parser = getParseFn(input);
       return createNewBuilder(_def, {
@@ -165,7 +190,7 @@ export function createBuilder<TConfig extends AnyRootConfig>(
       }) as AnyProcedureBuilder;
     },
     resolve(resolver) {
-      return createResolver(_def, resolver) as AnyProcedure;
+      return createResolver(_def, resolver);
     },
   };
 }
@@ -264,6 +289,31 @@ function createProcedureCaller(_def: AnyProcedureBuilderDef): AnyProcedure {
     return result.data;
   };
   procedure._def = _def;
+  procedure.with = ((plugin) => {
+    return (opts: ProcedureCallOptions) =>
+      plugin({
+        ctx: opts.ctx,
+        path: opts.path,
+        rawInput: opts.rawInput,
+        input: opts.input,
+        next(_nextOpts?: any) {
+          const nextOpts = _nextOpts as
+            | {
+                ctx?: Record<string, unknown>;
+                input?: unknown;
+                rawInput?: unknown;
+              }
+            | undefined;
+
+          return procedure({
+            path: opts.path,
+            ctx: nextOpts && "ctx" in nextOpts ? { ...nextOpts.ctx } : opts.ctx,
+            input: nextOpts && "input" in nextOpts ? nextOpts.input : opts.input,
+            rawInput: nextOpts && "rawInput" in nextOpts ? nextOpts.rawInput : opts.rawInput,
+          });
+        },
+      });
+  }) as AnyProcedure["with"];
 
   return procedure as AnyProcedure;
 }
