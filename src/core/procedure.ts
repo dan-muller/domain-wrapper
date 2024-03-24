@@ -1,6 +1,7 @@
 import type { AnyRootConfig } from "./internals/config";
-import type { ProcedureBuilderDef, ProcedureCallOptions } from "./internals/procedureBuilder";
-import type { UnsetMarker } from "./internals/utils";
+import { ProcedureBuilder, ProcedureBuilderDef, ProcedureCallOptions } from "./internals/procedureBuilder";
+import type { DefaultValue, Overwrite, UnsetMarker } from "./internals/utils";
+import type { MiddlewareBuilder, MiddlewareFunction } from "./middleware";
 
 type ClientContext = Record<string, unknown>;
 
@@ -59,17 +60,34 @@ export type ProcedureArgs<TParams extends ProcedureParams> = TParams["_input_in"
     ? [input?: TParams["_input_in"] | void, opts?: ProcedureOptions]
     : [input: TParams["_input_in"], opts?: ProcedureOptions];
 
+type CreateProcedureReturnInput<TPrev extends ProcedureParams, TNext extends ProcedureParams> = ProcedureBuilder<{
+  _config: TPrev["_config"];
+  _ctx_out: Overwrite<TPrev["_ctx_out"], TNext["_ctx_out"]>;
+  _input_in: TPrev["_input_in"];
+  _input_out: UnsetMarker extends TNext["_input_out"]
+    ? TPrev["_input_out"]
+    : Overwrite<TPrev["_input_out"], TNext["_input_out"]>;
+  _output_in: DefaultValue<TNext["_output_in"], TPrev["_output_in"]>;
+  _output_out: DefaultValue<TNext["_output_out"], TPrev["_output_out"]>;
+}>;
+
 /**
  *
  * @internal
  */
 export interface Procedure<TParams extends ProcedureParams> {
   _def: ProcedureBuilderDef<TParams> & TParams;
-  _procedure: true;
+  // _procedure: true;
   /**
    * @internal
    */
-  (opts: ProcedureCallOptions): Promise<unknown>;
+  resolve: (opts: ProcedureCallOptions) => Promise<unknown>;
+  /**
+   * Add a middleware to the procedure.
+   */
+  use<$Params extends ProcedureParams>(
+    fn: MiddlewareBuilder<TParams, $Params> | MiddlewareFunction<TParams, $Params>
+  ): CreateProcedureReturnInput<TParams, $Params>;
 }
 
 export type AnyProcedure = Procedure<any>;

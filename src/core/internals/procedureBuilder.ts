@@ -10,17 +10,6 @@ import { middlewareMarker } from "./utils";
 import { MaybePromise, Simplify } from "../util-types";
 import { getTRPCErrorFromUnknown, TRPCError } from "../error";
 
-type CreateProcedureReturnInput<TPrev extends ProcedureParams, TNext extends ProcedureParams> = ProcedureBuilder<{
-  _config: TPrev["_config"];
-  _ctx_out: Overwrite<TPrev["_ctx_out"], TNext["_ctx_out"]>;
-  _input_in: TPrev["_input_in"];
-  _input_out: UnsetMarker extends TNext["_input_out"]
-    ? TPrev["_input_out"]
-    : Overwrite<TPrev["_input_out"], TNext["_input_out"]>;
-  _output_in: DefaultValue<TNext["_output_in"], TPrev["_output_in"]>;
-  _output_out: DefaultValue<TNext["_output_out"], TPrev["_output_out"]>;
-}>;
-
 /**
  * @internal
  */
@@ -89,15 +78,9 @@ export interface ProcedureBuilder<TParams extends ProcedureParams> {
     _output_out: inferParser<$Parser>["out"];
   }>;
   /**
-   * Add a middleware to the procedure.
-   */
-  use<$Params extends ProcedureParams>(
-    fn: MiddlewareBuilder<TParams, $Params> | MiddlewareFunction<TParams, $Params>
-  ): CreateProcedureReturnInput<TParams, $Params>;
-  /**
    * Resolve procedure
    */
-  resolve<$Output>(
+  resolver<$Output>(
     resolver: (opts: ResolveOptions<TParams>) => MaybePromise<DefaultValue<TParams["_output_in"], $Output>>
   ): BuildProcedure<TParams, $Output>;
   /**
@@ -155,16 +138,7 @@ export function createBuilder<TConfig extends AnyRootConfig>(
         middlewares: [createOutputMiddleware(parseOutput)],
       }) as AnyProcedureBuilder;
     },
-    use(middlewareBuilderOrFn) {
-      // Distinguish between a middleware builder and a middleware function
-      const middlewares =
-        "_middlewares" in middlewareBuilderOrFn ? middlewareBuilderOrFn._middlewares : [middlewareBuilderOrFn];
-
-      return createNewBuilder(_def, {
-        middlewares: middlewares as ProcedureBuilderMiddleware[],
-      }) as AnyProcedureBuilder;
-    },
-    resolve(resolver) {
+    resolver(resolver) {
       return createResolver(_def, resolver) as AnyProcedure;
     },
   };
@@ -265,5 +239,17 @@ function createProcedureCaller(_def: AnyProcedureBuilderDef): AnyProcedure {
   };
   procedure._def = _def;
 
-  return procedure as AnyProcedure;
+  return {
+    _def,
+    use(middlewareBuilderOrFn) {
+      // Distinguish between a middleware builder and a middleware function
+      const middlewares =
+        "_middlewares" in middlewareBuilderOrFn ? middlewareBuilderOrFn._middlewares : [middlewareBuilderOrFn];
+
+      return createNewBuilder(_def, {
+        middlewares: middlewares as ProcedureBuilderMiddleware[],
+      }) as AnyProcedureBuilder;
+    },
+    resolve: procedure,
+  };
 }

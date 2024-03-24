@@ -129,14 +129,14 @@ export class TRPCError extends Error {
   }
 }
 
-export type DefaultErrorData = {
+type DefaultErrorData = {
   code: TRPC_ERROR_CODE_KEY;
   httpStatus: number;
   path?: string;
   stack?: string;
 };
 
-export interface DefaultErrorShape extends TRPCErrorShape<TRPC_ERROR_CODE_NUMBER, DefaultErrorData> {
+interface DefaultErrorShape extends TRPCErrorShape<TRPC_ERROR_CODE_NUMBER, DefaultErrorData> {
   message: string;
   code: TRPC_ERROR_CODE_NUMBER;
 }
@@ -150,9 +150,3 @@ export type ErrorFormatter<TContext, TShape extends TRPCErrorShape<number>> = ({
   ctx: TContext | undefined;
   shape: DefaultErrorShape;
 }) => TShape;
-
-export type ErrorFormatterShape<TType> = TType extends ErrorFormatter<any, infer TShape> ? TShape : DefaultErrorShape;
-
-export const defaultFormatter: ErrorFormatter<any, any> = ({ shape }: { shape: DefaultErrorShape }) => {
-  return shape;
-};
