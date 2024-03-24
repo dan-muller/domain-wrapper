@@ -217,9 +217,9 @@ function createResolver(_def: AnyProcedureBuilderDef, resolver: (opts: ResolveOp
 /**
  * @internal
  */
-export interface ProcedureCallOptions {
-  ctx: unknown;
-  input: unknown;
+export interface ProcedureCallOptions<TParams extends ProcedureParams = any> {
+  ctx: TParams["_ctx_out"];
+  input: TParams["_input_out"];
 }
 
 function createProcedureCaller(_def: AnyProcedureBuilderDef): AnyProcedure {
@@ -287,7 +287,7 @@ function createProcedureCaller(_def: AnyProcedureBuilderDef): AnyProcedure {
       plugin({
         ctx: opts.ctx,
         input: opts.input,
-        next(_nextOpts?: any) {
+        async next(_nextOpts?: any) {
           const nextOpts = _nextOpts as
             | {
                 ctx?: Record<string, unknown>;
@@ -295,10 +295,11 @@ function createProcedureCaller(_def: AnyProcedureBuilderDef): AnyProcedure {
               }
             | undefined;
 
-          return procedure({
+          const output = await procedure({
             ctx: nextOpts && "ctx" in nextOpts ? { ...nextOpts.ctx } : opts.ctx,
             input: nextOpts && "input" in nextOpts ? nextOpts.input : opts.input,
           });
+          return output as any;
         },
       });
   }) as AnyProcedure["with"];

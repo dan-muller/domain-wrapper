@@ -47,7 +47,16 @@ describe("wrapper", () => {
   });
 
   it("should error when input fails to parse", async () => {
-    await expect(widget({ ctx: {}, input: "1" })).rejects.toThrowError();
+    await expect(
+      widget({
+        ctx: {
+          // @ts-expect-error
+          a: 1,
+        },
+        // @ts-expect-error
+        input: "1",
+      })
+    ).rejects.toThrowError();
   });
 
   describe("with plugin", () => {
@@ -75,7 +84,13 @@ describe("wrapper", () => {
     });
 
     it("should error when input fails to parse", async () => {
-      await expect(gadget({ ctx: {}, input: "1" })).rejects.toThrowError();
+      await expect(
+        gadget({
+          ctx: {},
+          // @ts-expect-error
+          input: "1",
+        })
+      ).rejects.toThrowError();
     });
   });
 });

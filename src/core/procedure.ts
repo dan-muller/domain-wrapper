@@ -71,14 +71,14 @@ export interface Procedure<TParams extends ProcedureParams> {
   /**
    * @internal
    */
-  (opts: ProcedureCallOptions): Promise<TParams["_output_out"]>;
+  (opts: ProcedureCallOptions<TParams>): Promise<TParams["_output_out"]>;
 
   /**
    * Add a plug-in to the procedure.
    */
-  with<$Params extends ProcedureParams, $Output>(
-    fn: (...opts: Parameters<MiddlewareFunction<TParams, $Params>>) => $Output
-  ): (opts: ProcedureCallOptions) => $Output;
+  with<$Output>(
+    fn: (...opts: Parameters<MiddlewareFunction<TParams, TParams>>) => Promise<$Output>
+  ): (opts: ProcedureCallOptions<TParams>) => Promise<$Output>;
 }
 
 export type AnyProcedure = Procedure<any>;
