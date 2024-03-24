@@ -288,7 +288,6 @@ function createProcedureCaller(_def: AnyProcedureBuilderDef): AnyProcedure {
         ctx: opts.ctx,
         input: opts.input,
         next(_nextOpts?: any) {
-          console.log(opts, _nextOpts);
           const nextOpts = _nextOpts as
             | {
                 ctx?: Record<string, unknown>;

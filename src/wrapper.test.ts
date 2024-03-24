@@ -58,7 +58,7 @@ describe("wrapper", () => {
       return { widget, gizmo, whatsit };
     });
 
-    it("should return input with add", async () => {
+    it("should return return plugin result", async () => {
       const input = 100;
       const result = await gadget({
         ctx: {
