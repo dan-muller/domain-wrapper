@@ -1,7 +1,7 @@
 {
-  "name": "domain-wrapper",
-  "version": "0.0.1",
-  "description": "A lightweight wrapper framework for encapsulating functions within a domain",
+  "name": "procedure-wrapper",
+  "version": "0.1.0",
+  "description": "A lightweight wrapper framework for encapsulating functions",
   "type": "module",
   "scripts": {
     "precommit": "lint-staged",
@@ -31,6 +31,8 @@
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
     "prettier": "^3.2.5",
+    "ts-toolbelt": "^9.6.0",
+    "type-fest": "^4.15.0",
     "typescript": "^5.4.3",
     "vite": "^5.2.4",
     "vite-tsconfig-paths": "^4.3.2",

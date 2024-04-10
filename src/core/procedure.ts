@@ -1,82 +1,52 @@
-import type { AnyRootConfig } from "./internals/config";
-import type { MiddlewareFunction, PluginFunction } from "./middleware";
-import type { ProcedureBuilderDef, ProcedureCallOptions } from "./internals/procedureBuilder";
-import type { UnsetMarker } from "./internals/utils";
+import { AnyConfig, Definition } from "./config";
+import { Promisable } from "type-fest";
+import { ExtensionBuilder } from "./builder";
+import type { AnyMiddlewareResult } from "./middleware";
+import { getUnknownError } from "./utils/Error";
+import { FunctionSignature } from "./utils/FunctionSignature";
 
-type ClientContext = Record<string, unknown>;
-
-/**
- * @internal
- */
-export interface ProcedureOptions {
-  /**
-   * Client-side context
-   */
-  context?: ClientContext;
-  signal?: AbortSignal;
-}
-
-/**
- * FIXME: this should only take 1 generic argument instead of a list
- * @internal
- */
-export interface ProcedureParams<
-  TConfig extends AnyRootConfig = AnyRootConfig,
-  TContextOut = unknown,
-  TInputIn = unknown,
-  TInputOut = unknown,
-  TOutputIn = unknown,
-  TOutputOut = unknown,
-> {
-  _config: TConfig;
-  /**
-   * @internal
-   */
-  _ctx_out: TContextOut;
-  /**
-   * @internal
-   */
-  _input_in: TInputIn;
-  /**
-   * @internal
-   */
-  _input_out: TInputOut;
-  /**
-   * @internal
-   */
-  _output_in: TOutputIn;
-  /**
-   * @internal
-   */
-  _output_out: TOutputOut;
-}
-
-/**
- * @internal
- */
-export type ProcedureArgs<TParams extends ProcedureParams> = TParams["_input_in"] extends UnsetMarker
-  ? [input?: undefined | void, opts?: ProcedureOptions]
-  : undefined extends TParams["_input_in"]
-    ? [input?: TParams["_input_in"] | void, opts?: ProcedureOptions]
-    : [input: TParams["_input_in"], opts?: ProcedureOptions];
-
-/**
- *
- * @internal
- */
-export interface Procedure<TParams extends ProcedureParams> {
-  _def: ProcedureBuilderDef<TParams> & TParams;
-  _procedure: true;
-
-  /**
-   * @internal
-   */
-  (opts: ProcedureCallOptions<TParams>): Promise<TParams["_output_out"]>;
-
-  /**
-   * Add a plug-in to the procedure.
-   */
-  with<$Output>(fn: PluginFunction<TParams, $Output>): (opts: ProcedureCallOptions<TParams>) => Promise<$Output>;
-}
-
+export type ProcedureOpts<TConfig extends AnyConfig> = {
+  ctx: TConfig["context"];
+  input: TConfig["input"];
+};
+export type Procedure<TConfig extends AnyConfig> = {
+  (opts: ProcedureOpts<TConfig>): Promisable<ProcedureResult<TConfig["output"]>>;
+  def: Definition<TConfig>;
+  extend: ExtensionBuilder<TConfig>;
+};
 export type AnyProcedure = Procedure<any>;
+
+type ProcedureSuccess<TConfig extends AnyConfig> = { ok: true; data: TConfig["output"] };
+type ProcedureError = { ok: false; error: unknown };
+export type ProcedureResult<TConfig extends AnyConfig> = ProcedureSuccess<TConfig> | ProcedureError;
+export type AnyProcedureResult = ProcedureResult<any>;
+
+export type ProcedureCallOptions = { ctx: unknown; input: unknown };
+export function createProcedureCaller<TConfig extends AnyConfig>(def: Definition<TConfig>) {
+  const procedure = async (opts: ProcedureCallOptions) => {
+    const callRecursive = async (callOpts: ProcedureCallOptions, index: number = 0): Promise<AnyMiddlewareResult> => {
+      try {
+        const middleware = def.middleware[index];
+        return middleware({
+          ctx: callOpts?.ctx ?? opts.ctx,
+          input: callOpts?.input ?? opts.input,
+          next: ((nextOpts: any) =>
+            callRecursive(
+              {
+                ctx: nextOpts?.ctx ?? callOpts?.ctx ?? opts?.ctx,
+                input: nextOpts?.input ?? callOpts?.input ?? opts?.input,
+              },
+              index + 1
+            )) as any, // TODO: Fix this type
+        });
+      } catch (error) {
+        return { ok: false, error: getUnknownError(error) };
+      }
+    };
+    const result = await callRecursive(opts);
+    if (!result) throw new Error("No result. Did you forget to call `next`?");
+    return result;
+  };
+  procedure.def = def;
+  return procedure satisfies FunctionSignature<AnyProcedure> & { def: Definition<TConfig> };
+}
