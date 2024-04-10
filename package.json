@@ -1,7 +1,7 @@
 {
-  "name": "procedure-wrapper",
-  "version": "0.1.0",
-  "description": "A lightweight wrapper framework for encapsulating functions",
+  "name": "procedure-builder-monorepo",
+  "version": "1.0.0",
+  "description": "A monorepo for the Procedure Builder project",
   "type": "module",
   "scripts": {
     "precommit": "lint-staged",
@@ -10,18 +10,10 @@
     "prepare": "husky",
     "test": "vitest run"
   },
-  "keywords": [
-    "domain",
-    "encapsulation",
-    "function",
-    "functional",
-    "isolation"
-  ],
   "author": "dan-muller",
   "license": "ISC",
   "dependencies": {
-    "node": "^20",
-    "zod": "^3.22.4"
+    "node": "^20"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -31,11 +23,12 @@
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
     "prettier": "^3.2.5",
-    "ts-toolbelt": "^9.6.0",
-    "type-fest": "^4.15.0",
-    "typescript": "^5.4.3",
+    "typescript": "^5.4.4",
     "vite": "^5.2.4",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^1.4.0"
+  },
+  "engines": {
+    "node": "20"
   }
 }

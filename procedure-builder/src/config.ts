@@ -1,6 +1,6 @@
-import type { Parser } from "./utils/Parser";
-import type { AnyMiddlewareFn } from "./middleware";
-import type { AnyResolverFn } from "./builder";
+import type { Parser } from "./utils/Parser.js";
+import type { AnyMiddlewareFn } from "./middleware.js";
+import type { AnyResolverFn } from "./builder.js";
 
 export type Config<
   TConfig extends {

@@ -1,11 +1,16 @@
 import { z } from "zod";
-import createBuilder from "../builder";
-import { describe } from "vitest";
+import createBuilder from "../builder.js";
 
 describe("builder", () => {
   it("should work", async () => {
     const builder = createBuilder({}).context<{ add: number; sub: number }>();
-    const wMiddleware = builder.use(({ ctx, next }) => next<{ mult?: number; add: number; sub: number }>({ ctx }));
+    const wMiddleware = builder.use(({ ctx, next }) =>
+      next<{
+        mult?: number;
+        add: number;
+        sub: number;
+      }>({ ctx })
+    );
     const wInput = wMiddleware.input(z.number());
     const wOutput = wInput.output(z.number());
     const wResolve = wOutput.resolve(({ ctx, input }) => ctx.add + input - ctx.sub);

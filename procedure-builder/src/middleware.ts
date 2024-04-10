@@ -1,8 +1,8 @@
 import { Merge, Promisable } from "type-fest";
-import { AnyConfig } from "./config";
-import type { Parser } from "./utils/Parser";
-import { getUnknownError } from "./utils/Error";
-import { AnyResolverFn } from "./builder";
+import { AnyConfig } from "./config.js";
+import type { Parser } from "./utils/Parser.js";
+import { getUnknownError } from "./utils/Error.js";
+import { AnyResolverFn } from "./builder.js";
 
 export type MiddlewareOpts<TConfig extends AnyConfig> = {
   ctx: TConfig["context"];

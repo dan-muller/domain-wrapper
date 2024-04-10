@@ -1,9 +1,9 @@
-import { AnyConfig, Definition } from "./config";
+import { AnyConfig, Definition } from "./config.js";
 import { Promisable } from "type-fest";
-import { ExtensionBuilder } from "./builder";
-import type { AnyMiddlewareResult } from "./middleware";
-import { getUnknownError } from "./utils/Error";
-import { FunctionSignature } from "./utils/FunctionSignature";
+import { ExtensionBuilder } from "./builder.js";
+import type { AnyMiddlewareResult } from "./middleware.js";
+import { getUnknownError } from "./utils/Error.js";
+import { FunctionSignature } from "./utils/FunctionSignature.js";
 
 export type ProcedureOpts<TConfig extends AnyConfig> = {
   ctx: TConfig["context"];
@@ -27,7 +27,8 @@ export function createProcedureCaller<TConfig extends AnyConfig>(def: Definition
     const callRecursive = async (callOpts: ProcedureCallOptions, index: number = 0): Promise<AnyMiddlewareResult> => {
       try {
         const middleware = def.middleware[index];
-        return middleware({
+        // TODO: Remove `!` assertion
+        return middleware!({
           ctx: callOpts?.ctx ?? opts.ctx,
           input: callOpts?.input ?? opts.input,
           next: ((nextOpts: any) =>
