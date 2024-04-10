@@ -36,6 +36,12 @@ importers:
       prettier:
         specifier: ^3.2.5
         version: 3.2.5
+      ts-toolbelt:
+        specifier: ^9.6.0
+        version: 9.6.0
+      type-fest:
+        specifier: ^4.15.0
+        version: 4.15.0
       typescript:
         specifier: ^5.4.3
         version: 5.4.3
@@ -1850,6 +1856,10 @@ packages:
       typescript: 5.4.3
     dev: true
 
+  /ts-toolbelt@9.6.0:
+    resolution: {integrity: sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w==}
+    dev: true
+
   /tsconfck@3.0.3(typescript@5.4.3):
     resolution: {integrity: sha512-4t0noZX9t6GcPTfBAbIbbIU4pfpCwh0ueq3S4O/5qXI1VwK1outmxhe9dOiEWqMz3MW2LKgDTpqWV+37IWuVbA==}
     engines: {node: ^18 || >=20}
@@ -1883,6 +1893,11 @@ packages:
   /type-fest@3.13.1:
     resolution: {integrity: sha512-tLq3bSNx+xSpwvAJnzrK0Ep5CLNWjvFTOp71URMaAEWBfRb9nnJiBoUe0tF8bI4ZFO3omgBR6NvnbzVUT3Ly4g==}
     engines: {node: '>=14.16'}
+    dev: true
+
+  /type-fest@4.15.0:
+    resolution: {integrity: sha512-tB9lu0pQpX5KJq54g+oHOLumOx+pMep4RaM6liXh2PKmVRFF+/vAtUP0ZaJ0kOySfVNjF6doBWPHhBhISKdlIA==}
+    engines: {node: '>=16'}
     dev: true
 
   /typescript@5.4.3:
