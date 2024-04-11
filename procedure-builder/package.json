@@ -1,0 +1,26 @@
+{
+  "name": "procedure-builder",
+  "version": "0.1.0",
+  "description": "A lightweight wrapper framework for encapsulating functions",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "keywords": [
+    "domain",
+    "encapsulation",
+    "function",
+    "functional",
+    "isolation"
+  ],
+  "author": "dan-muller",
+  "license": "ISC",
+  "dependencies": {
+    "node": "^20",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "type-fest": "^4.15.0"
+  }
+}

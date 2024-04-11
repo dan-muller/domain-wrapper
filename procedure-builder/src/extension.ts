@@ -1,7 +1,7 @@
-import type { AnyConfig, Definition } from "./config";
-import type { AnyProcedure, ProcedureCallOptions, ProcedureOpts, ProcedureResult } from "./procedure";
+import type { AnyConfig, Definition } from "./config.js";
+import type { AnyProcedure, ProcedureCallOptions, ProcedureOpts, ProcedureResult } from "./procedure.js";
 import type { Promisable } from "type-fest";
-import type { FunctionSignature } from "./utils/FunctionSignature";
+import type { FunctionSignature } from "./utils/FunctionSignature.js";
 
 type ExtensionOpts<TConfig extends AnyConfig> = {
   ctx: TConfig["context"];

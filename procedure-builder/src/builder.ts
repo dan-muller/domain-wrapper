@@ -1,12 +1,12 @@
-import type { AnyConfig, AnyDefinition, Definition } from "./config";
-import { createExtensionCaller, ExtendedProcedure, ExtensionFn } from "./extension";
-import type { MiddlewareFn } from "./middleware";
-import { createInputMiddleware, createOutputMiddleware, createResolverMiddleware } from "./middleware";
-import { AnyProcedure, createProcedureCaller, Procedure } from "./procedure";
-import type { FunctionSignature } from "./utils/FunctionSignature";
+import type { AnyConfig, AnyDefinition, Definition } from "./config.js";
+import type { FunctionSignature } from "./utils/FunctionSignature.js";
 import type { Merge, Promisable } from "type-fest";
-import type { Unset } from "./utils/Unset";
-import type { inferParser, Parser } from "./utils/Parser";
+import type { MiddlewareFn } from "./middleware.js";
+import type { Unset } from "./utils/Unset.js";
+import type { inferParser, Parser } from "./utils/Parser.js";
+import { createExtensionCaller, type ExtendedProcedure, type ExtensionFn } from "./extension.js";
+import { createInputMiddleware, createOutputMiddleware, createResolverMiddleware } from "./middleware.js";
+import { type AnyProcedure, createProcedureCaller, type Procedure } from "./procedure.js";
 
 /**
  * @public
